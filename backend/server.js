@@ -16,7 +16,7 @@ const server = http.createServer(app);
 
 // Update CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: ['https://chatifys.vercel.app/login'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
