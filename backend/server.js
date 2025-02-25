@@ -30,7 +30,9 @@ const io = socketIo(server, {
     origin: ["https://chatifys.vercel.app"],
     methods: ["GET", "POST"],
     credentials: true
-  }
+  },
+  path: '/socket.io',
+  transports: ['websocket', 'polling']
 });
 
 // Middleware
