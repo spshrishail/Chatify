@@ -110,53 +110,42 @@ const Login = () => {
   });
 
   const onSubmit = async (data) => {
-    const loadingToast = toast.loading("Signing in...");
     try {
-      const response = await axios.post('https://chatify-theta-seven.vercel.app/api/auth/login', 
+      const response = await axios.post(
+        'https://chatify-theta-seven.vercel.app/api/auth/login',
         {
-          email: data.email,
+          email: data.email.toLowerCase().trim(),
           password: data.password
         },
         {
-          withCredentials: true,
           headers: {
             'Content-Type': 'application/json'
           }
         }
       );
 
-      if (response.data) {
-        // Store the token if your backend sends one
-        if (response.data.token) {
-          localStorage.setItem('token', response.data.token);
-        }
-        // Handle successful login
-        setError('');
-        toast.update(loadingToast, {
-          render: "Signed in successfully!",
-          type: "success",
-          isLoading: false,
-          autoClose: 2000
-        });
+      if (response.data && response.data.token) {
+        // Store token and user data
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
         
-        if (typeof login === 'function') {
-          login(response.data.user);
-        } else {
-          console.error('Login function is not available');
-          throw new Error('Authentication error');
-        }
+        // Show success message
+        toast.success('Login successful!');
         
-        navigate('/');
+        // Navigate to dashboard or home
+        navigate('/dashboard'); // or wherever you want to redirect
       }
     } catch (error) {
       console.error('Login error details:', error.response?.data);
-      toast.update(loadingToast, {
-        render: error.response?.data?.message || 'Login failed',
-        type: "error",
-        isLoading: false,
-        autoClose: 3000
-      });
-      setError(error.response?.data?.message || 'Login failed');
+      
+      // Handle different error cases
+      if (error.response?.status === 401) {
+        toast.error('Invalid email or password');
+      } else if (error.response?.status === 400) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error('Login failed. Please try again.');
+      }
     }
   };
 
