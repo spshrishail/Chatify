@@ -110,42 +110,59 @@ const Login = () => {
   });
 
   const onSubmit = async (data) => {
+    const loadingToast = toast.loading("Signing in...");
     try {
-      const response = await axios.post(
-        'https://chatify-theta-seven.vercel.app/api/auth/login',
-        {
-          email: data.email.toLowerCase().trim(),
-          password: data.password
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      if (!data.email || !data.password) {
+        throw new Error("Email and password are required");
+      }
 
-      if (response.data && response.data.token) {
-        // Store token and user data
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        
-        // Show success message
-        toast.success('Login successful!');
-        
-        // Navigate to dashboard or home
-        navigate('/dashboard'); // or wherever you want to redirect
-      }
-    } catch (error) {
-      console.error('Login error details:', error.response?.data);
+      const response = await axios.post('https://chatify-theta-seven.vercel.app/api/auth/login', data, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
       
-      // Handle different error cases
-      if (error.response?.status === 401) {
-        toast.error('Invalid email or password');
-      } else if (error.response?.status === 400) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error('Login failed. Please try again.');
+      if (!response.data || !response.data.token || !response.data.user) {
+        throw new Error("Invalid response from server");
       }
+      
+      const { token, user } = response.data;
+      
+      setError('');
+      
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      
+      toast.update(loadingToast, {
+        render: "Signed in successfully!",
+        type: "success",
+        isLoading: false,
+        autoClose: 2000
+      });
+      
+      if (typeof login === 'function') {
+        login(user);
+      } else {
+        console.error('Login function is not available');
+        throw new Error('Authentication error');
+      }
+      
+      navigate('/');
+    } catch (err) {
+      console.error('Login error:', err);
+      const errorMessage = err.response?.data?.message || 
+        (err.message === 'Network Error' ? 'Unable to connect to server. Please check your connection.' : err.message) ||
+        "Login failed. Please try again.";
+      
+      toast.update(loadingToast, {
+        render: errorMessage,
+        type: "error",
+        isLoading: false,
+        autoClose: 3000
+      });
+      setError(errorMessage);
     }
   };
 
