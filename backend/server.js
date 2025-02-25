@@ -31,7 +31,11 @@ app.use(cors(corsOptions));
 // Socket.io setup with correct CORS
 const io = socketIo(server, {
   cors: {
-    origin: ["https://chatifys-spshrishails-projects.vercel.app/"],
+     origin: [
+    'https://chatifys-spshrishails-projects.vercel.app',
+    'https://chatifys.vercel.app',
+    'http://localhost:5173'
+  ],
     methods: ["GET", "POST"],
     credentials: true
   },
