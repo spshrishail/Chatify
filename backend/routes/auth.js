@@ -9,38 +9,42 @@ const { authenticateToken } = require('../middleware/auth');
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    
+    // Log the received data (for debugging)
+    console.log('Login attempt:', { email });
 
-    // Find user
+    // 1. Find user
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
+    // 2. Verify password
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Generate token
+    // 3. Generate token
     const token = jwt.sign(
       { userId: user._id },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
-    // Send response
-    res.json({
+    // 4. Send response
+    res.status(200).json({
       token,
       user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email
+        id: user._id,
+        email: user.email,
+        name: user.name
       }
     });
+
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error during login' });
   }
 });
 
