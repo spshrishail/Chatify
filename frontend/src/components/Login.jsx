@@ -112,50 +112,51 @@ const Login = () => {
   const onSubmit = async (data) => {
     const loadingToast = toast.loading("Signing in...");
     try {
-      if (!data.email || !data.password) {
-        throw new Error("Email and password are required");
-      }
+      const response = await axios.post('https://chatify-theta-seven.vercel.app/api/auth/login', 
+        {
+          email: data.email,
+          password: data.password
+        },
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
 
-      const response = await axios.post('https://chatify-theta-seven.vercel.app/api/auth/login', data);
-      
-      if (!response.data || !response.data.token || !response.data.user) {
-        throw new Error("Invalid response from server");
+      if (response.data) {
+        // Store the token if your backend sends one
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token);
+        }
+        // Handle successful login
+        setError('');
+        toast.update(loadingToast, {
+          render: "Signed in successfully!",
+          type: "success",
+          isLoading: false,
+          autoClose: 2000
+        });
+        
+        if (typeof login === 'function') {
+          login(response.data.user);
+        } else {
+          console.error('Login function is not available');
+          throw new Error('Authentication error');
+        }
+        
+        navigate('/');
       }
-      
-      const { token, user } = response.data;
-      
-      setError('');
-      
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
+    } catch (error) {
+      console.error('Login error details:', error.response?.data);
       toast.update(loadingToast, {
-        render: "Signed in successfully!",
-        type: "success",
-        isLoading: false,
-        autoClose: 2000
-      });
-      
-      if (typeof login === 'function') {
-        login(user);
-      } else {
-        console.error('Login function is not available');
-        throw new Error('Authentication error');
-      }
-      
-      navigate('/');
-    } catch (err) {
-      console.error('Login error:', err);
-      const errorMessage = err.response?.data?.message || err.message || "Login failed. Please try again.";
-      
-      toast.update(loadingToast, {
-        render: errorMessage,
+        render: error.response?.data?.message || 'Login failed',
         type: "error",
         isLoading: false,
         autoClose: 3000
       });
-      setError(errorMessage);
+      setError(error.response?.data?.message || 'Login failed');
     }
   };
 
