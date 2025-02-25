@@ -16,7 +16,7 @@ const server = http.createServer(app);
 
 // Update CORS configuration
 const corsOptions = {
-  origin: ['https://chatifys.vercel.app'],
+  origin: ['https://chatifys-spshrishails-projects.vercel.app/'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -27,7 +27,7 @@ app.use(cors(corsOptions));
 // Socket.io setup with correct CORS
 const io = socketIo(server, {
   cors: {
-    origin: ["https://chatifys.vercel.app"],
+    origin: ["https://chatifys-spshrishails-projects.vercel.app/"],
     methods: ["GET", "POST"],
     credentials: true
   },
