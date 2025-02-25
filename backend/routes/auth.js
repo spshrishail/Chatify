@@ -9,36 +9,49 @@ const { authenticateToken } = require('../middleware/auth');
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    
-    // Log the received data (for debugging)
-    console.log('Login attempt:', { email });
 
-    // 1. Find user
-    const user = await User.findOne({ email });
+    // Validation
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    // Find user
+    const user = await User.findOne({ email: email.toLowerCase() });
+    
+    // Debug log (remove in production)
+    console.log('Login attempt:', { email, userFound: !!user });
+
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // 2. Verify password
+    // Compare password
     const isValidPassword = await bcrypt.compare(password, user.password);
+    
+    // Debug log (remove in production)
+    console.log('Password check:', { isValid: isValidPassword });
+
     if (!isValidPassword) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // 3. Generate token
+    // Generate JWT token
     const token = jwt.sign(
-      { userId: user._id },
+      { 
+        userId: user._id,
+        email: user.email 
+      },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
-    // 4. Send response
+    // Send response
     res.status(200).json({
       token,
       user: {
         id: user._id,
-        email: user.email,
-        name: user.name
+        name: user.name,
+        email: user.email
       }
     });
 
@@ -54,16 +67,20 @@ router.post('/register', async (req, res) => {
     const { name, email, password } = req.body;
 
     // Check if user exists
-    let user = await User.findOne({ email });
-    if (user) {
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     // Create new user
-    user = new User({
+    const user = new User({
       name,
-      email,
-      password: await bcrypt.hash(password, 10)
+      email: email.toLowerCase(),
+      password: hashedPassword
     });
 
     await user.save();
@@ -75,18 +92,18 @@ router.post('/register', async (req, res) => {
       { expiresIn: '24h' }
     );
 
-    // Send response
     res.status(201).json({
       token,
       user: {
-        _id: user._id,
+        id: user._id,
         name: user.name,
         email: user.email
       }
     });
+
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Error creating user' });
   }
 });
 
