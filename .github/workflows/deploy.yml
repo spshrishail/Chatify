@@ -35,7 +35,6 @@ jobs:
           vercel-args: '--prod'
           working-directory: ./frontend
         env:
-          
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
 
   deploy-backend:
@@ -67,5 +66,4 @@ jobs:
           vercel-args: '--prod'
           working-directory: ./backend
         env:
-         
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_BACKEND }}
