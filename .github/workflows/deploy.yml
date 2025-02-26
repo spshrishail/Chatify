@@ -32,7 +32,7 @@ jobs:
         uses: amondnet/vercel-action@v20.0.0
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-args: '--prod'
+          vercel-args: '--prod --yes'
           working-directory: ./frontend
 
   deploy-backend:
@@ -61,5 +61,5 @@ jobs:
         uses: amondnet/vercel-action@v20.0.0
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-args: '--prod'
+          vercel-args: '--prod --yes'
           working-directory: ./backend
