@@ -17,7 +17,6 @@ const server = http.createServer(app);
 // Update CORS configuration
 const corsOptions = {
   origin: [
-    'https://chatifys-spshrishails-projects.vercel.app',
     'https://chatifys.vercel.app',
     'http://localhost:5173'
   ],
@@ -32,7 +31,6 @@ app.use(cors(corsOptions));
 const io = socketIo(server, {
   cors: {
      origin: [
-    'https://chatifys-spshrishails-projects.vercel.app',
     'https://chatifys.vercel.app',
     'http://localhost:5173'
   ],
