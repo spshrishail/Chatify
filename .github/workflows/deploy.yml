@@ -11,55 +11,38 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '18'
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
 
-      - name: Install dependencies
-        run: |
-          cd frontend
-          npm install
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Build the project
-        run: |
-          cd frontend
-          npm run build
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v20.0.0
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-args: '--prod --yes'
-          working-directory: ./frontend
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
 
   deploy-backend:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '18'
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
 
-      - name: Install dependencies
-        run: |
-          cd backend
-          npm install
+      - name: Pull Vercel Environment Information
+        working-directory: ./backend
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Build the project
-        run: |
-          cd backend
-          npm run build
+      - name: Build Project Artifacts
+        working-directory: ./backend
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v20.0.0
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-args: '--prod --yes'
-          working-directory: ./backend
+      - name: Deploy Project Artifacts to Vercel
+        working-directory: ./backend
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
