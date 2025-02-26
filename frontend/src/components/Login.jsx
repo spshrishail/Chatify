@@ -116,7 +116,7 @@ const Login = () => {
         throw new Error("Email and password are required");
       }
 
-      const response = await axios.post(`https://chatify-hfrzdcvxw-spshrishails-projects.vercel.app/auth/login`, {
+      const response = await axios.post(`https://chatify-hfrzdcvxw-spshrishails-projects.vercel.app/api/auth/login`, {
         email: data.email.toLowerCase(),
         password: data.password
       }, {
