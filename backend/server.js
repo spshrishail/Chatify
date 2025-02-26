@@ -17,6 +17,7 @@ const server = http.createServer(app);
 // CORS configuration
 const allowedOrigins = [
   'https://chatifys.vercel.app',
+  'https://chatifys-k4o70wh5m-spshrishails-projects.vercel.app',
   'https://chatifys-spshrishails-projects.vercel.app',
   'http://localhost:5173'
 ];
