@@ -116,8 +116,10 @@ const Login = () => {
         throw new Error("Email and password are required");
       }
 
-      const response = await axios.post('https://chatify-theta-seven.vercel.app/api/auth/login', data, {
-        withCredentials: true,
+      const response = await axios.post(`https://chatify-hfrzdcvxw-spshrishails-projects.vercel.app/auth/login`, {
+        email: data.email.toLowerCase(),
+        password: data.password
+      }, {
         headers: {
           'Content-Type': 'application/json',
         }
@@ -129,11 +131,8 @@ const Login = () => {
       
       const { token, user } = response.data;
       
-      setError('');
-      
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      // Store user info and token
+      localStorage.setItem('userInfo', JSON.stringify({ token, user }));
       
       toast.update(loadingToast, {
         render: "Signed in successfully!",
@@ -143,7 +142,7 @@ const Login = () => {
       });
       
       if (typeof login === 'function') {
-        login(user);
+        login({ token, user });
       } else {
         console.error('Login function is not available');
         throw new Error('Authentication error');
